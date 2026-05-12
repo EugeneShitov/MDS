@@ -14,7 +14,7 @@
       --land: #181818;
       --land-stroke: rgba(255,255,255,0.15);
       --red: #e63535;
-      --ui-bg: rgba(20,20,20,0.95);
+      --ui-bg: rgba(20,20,20,0.96);
       --ui-border: rgba(255,255,255,0.1);
       --text: #eee;
       --text-muted: rgba(255,255,255,0.4);
@@ -29,7 +29,7 @@
     .graticule { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 0.4px; vector-effect: non-scaling-stroke; }
 
     /* ── UI ── */
-    #header { position: fixed; top: 0; width: 100%; padding: 25px 30px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 100; }
+    #header { position: fixed; top: 0; width: 100%; padding: 25px 30px; display: flex; justify-content: space-between; z-index: 100; pointer-events: none; }
     #logo { font-family: 'Space Mono'; letter-spacing: 0.3em; text-transform: uppercase; pointer-events: auto; font-size: 14px; }
     #logo em { color: var(--red); font-style: normal; font-weight: bold; }
     #status-badge { font-family: 'Space Mono'; font-size: 10px; color: var(--text-muted); pointer-events: auto; }
@@ -42,16 +42,16 @@
     }
     #search-btn { background: var(--red); border: none; color: white; padding: 0 20px; border-radius: 10px; font-family: 'Space Mono'; cursor: pointer; font-weight: bold; }
 
-    /* ── TOOLTIP (Original Look) ── */
+    /* ── TOOLTIP (Original Design) ── */
     #tooltip {
       position: fixed; background: var(--ui-bg); border: 1px solid var(--ui-border);
       border-radius: 12px; padding: 16px; pointer-events: none; opacity: 0;
       z-index: 500; backdrop-filter: blur(15px); min-width: 200px; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-      transition: opacity 0.2s;
+      transition: opacity 0.15s ease-out;
     }
     #tooltip.show { opacity: 1; }
     .tt-header { font-family: 'Space Mono'; color: var(--text-muted); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid var(--ui-border); padding-bottom: 6px; }
-    .tt-user { font-family: 'Space Mono'; color: var(--red); font-size: 15px; font-weight: 700; display: block; margin-bottom: 4px; }
+    .tt-user { font-family: 'Space Mono'; color: var(--red); font-size: 14px; font-weight: 700; display: block; margin-bottom: 4px; }
     .tt-location { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-family: 'Space Mono'; letter-spacing: 1px; }
 
     /* ── MODAL ── */
@@ -67,7 +67,7 @@
     .progress-fill { position: absolute; height: 100%; background: var(--red); width: 0%; transition: width 0.3s; }
 
     /* ── POINTS ── */
-    .point-outer { fill: none; stroke: var(--red); stroke-width: 1.5; }
+    .point-outer { fill: none; stroke: var(--red); stroke-width: 1.5; pointer-events: none; }
     .point-inner { fill: var(--red); cursor: pointer; }
   </style>
 </head>
@@ -123,12 +123,11 @@ const ZOOM_THRESHOLD = 3.5;
 const svg = d3.select('#map');
 const g = d3.select('#main-g');
 const tooltip = d3.select('#tooltip');
-let projection = d3.geoNaturalEarth1().scale(window.innerWidth / 6.2).translate([window.innerWidth / 2, window.innerHeight / 1.6]);
+let projection = d3.geoNaturalEarth1().scale(window.innerWidth / 6).translate([window.innerWidth / 2, window.innerHeight / 1.6]);
 const path = d3.geoPath().projection(projection);
 
 let allTraders = [];
 let currentZoomK = 1;
-let tempCoords = [0, 0];
 
 async function init() {
   setLoad(30);
@@ -159,19 +158,20 @@ function renderPoints() {
   let displayData = [];
 
   if (currentZoomK < ZOOM_THRESHOLD) {
-    // Группировка строго по странам
+    // ГРУППИРОВКА ПО СТРАНАМ
     const groups = d3.group(allTraders, d => d.country_code || 'GLOBAL');
-    groups.forEach((members, country) => {
-      // Точка кластера всегда ставится в координаты первого трейдера этой страны
+    groups.forEach((members, countryCode) => {
+      // Ключевое изменение: точка кластера берется из ПЕРВОГО трейдера ЭТОЙ конкретной группы (страны)
       displayData.push({ 
         isCluster: true, 
         lng: members[0].lng, 
         lat: members[0].lat, 
         members: members,
-        country: country 
+        countryName: countryCode 
       });
     });
   } else {
+    // РАЗЪЕДИНЕНИЕ ПО ГОРОДАМ
     displayData = allTraders.map(d => ({ ...d, isCluster: false }));
   }
 
@@ -181,29 +181,32 @@ function renderPoints() {
     const el = d3.select(this);
     const pos = projection([d.lng, d.lat]);
 
-    // Rings
+    // Анимированные кольца
     const ring = el.append('circle').attr('class', 'point-outer').attr('cx', pos[0]).attr('cy', pos[1]).attr('r', 5);
     (function pulse() {
       ring.attr('r', 5).style('opacity', 0.8).transition().duration(2500).ease(d3.easeCubicOut).attr('r', 25).style('opacity', 0).on('end', pulse);
     })();
 
-    // Main Point
+    // Основная точка
     el.append('circle').attr('class', 'point-inner').attr('cx', pos[0]).attr('cy', pos[1])
       .attr('r', 6 / Math.sqrt(currentZoomK)).attr('filter', 'url(#glow)')
       .on('mouseover', (e) => {
         tooltip.classed('show', true);
         if (d.isCluster) {
           const names = d.members.map(m => `<span class="tt-user">${m.name}</span>`).join('');
-          tooltip.html(`<div class="tt-header">TRADERS IN ${d.country}</div>${names}`);
+          tooltip.html(`<div class="tt-header">TRADERS IN ${d.countryName}</div>${names}`);
         } else {
           tooltip.html(`<div class="tt-header">OPERATIVE PROFILE</div><span class="tt-user">${d.name}</span><div class="tt-location">${d.city || 'Classified'}</div>`);
         }
       })
-      .on('mousemove', (e) => tooltip.style('left', (e.clientX + 15)+'px').style('top', (e.clientY + 15)+'px'))
+      .on('mousemove', (e) => {
+        tooltip.style('left', (e.clientX + 15)+'px').style('top', (e.clientY + 15)+'px');
+      })
       .on('mouseout', () => tooltip.classed('show', false));
   });
 }
 
+// Поиск и регистрация
 document.getElementById('search-btn').onclick = async () => {
   const query = document.getElementById('city-search').value;
   if(!query) return;
@@ -212,33 +215,38 @@ document.getElementById('search-btn').onclick = async () => {
 
   if (data.length > 0) {
     const city = data[0];
-    tempCoords = [parseFloat(city.lon), parseFloat(city.lat)];
+    const coords = [parseFloat(city.lon), parseFloat(city.lat)];
     const cc = (city.address.country_code || '??').toUpperCase();
     const cityName = (city.address.city || city.address.town || city.address.village || city.display_name.split(',')[0]).toUpperCase();
 
     document.getElementById('location-display').innerText = `SECTOR: ${cityName} [${cc}]`;
     document.getElementById('form-modal').style.display = 'flex';
-    document.getElementById('form-modal').dataset.cc = cc;
-    document.getElementById('form-modal').dataset.city = cityName;
+    
+    // Сохраняем данные для вставки
+    window.lastSearch = { coords, cc, cityName };
 
-    const pos = projection(tempCoords);
+    // Зум к городу
+    const pos = projection(coords);
     svg.transition().duration(1800).ease(d3.easeCubicInOut).call(zoom.transform, d3.zoomIdentity.translate(window.innerWidth/2, window.innerHeight/2).scale(10).translate(-pos[0], -pos[1]));
   }
 };
 
 document.getElementById('submit-btn').onclick = async () => {
   const name = document.getElementById('username').value;
-  if (!name) return alert('NAME REQUIRED');
-  const modal = document.getElementById('form-modal');
+  if (!name) return;
 
   await supabaseClient.from('traders').insert([{ 
-    name: name, lng: tempCoords[0], lat: tempCoords[1], 
-    approved: false, country_code: modal.dataset.cc, city: modal.dataset.city 
+    name: name, 
+    lng: window.lastSearch.coords[0], 
+    lat: window.lastSearch.coords[1], 
+    approved: false, 
+    country_code: window.lastSearch.cc, 
+    city: window.lastSearch.cityName 
   }]);
 
-  alert('SIGNAL TRANSMITTED TO BASE');
-  modal.style.display = 'none';
-  document.getElementById('city-search').value = '';
+  alert('SIGNAL TRANSMITTED');
+  document.getElementById('form-modal').style.display = 'none';
+  document.getElementById('username').value = '';
 };
 
 document.getElementById('cancel-btn').onclick = () => document.getElementById('form-modal').style.display = 'none';
@@ -247,11 +255,22 @@ const zoom = d3.zoom().scaleExtent([1, 40]).on('zoom', (e) => {
   const oldK = currentZoomK;
   currentZoomK = e.transform.k;
   g.attr('transform', e.transform);
-  if ((oldK < ZOOM_THRESHOLD && currentZoomK >= ZOOM_THRESHOLD) || (oldK >= ZOOM_THRESHOLD && currentZoomK < ZOOM_THRESHOLD)) renderPoints();
+  // Перерисовываем точки только при переходе через порог зума
+  if ((oldK < ZOOM_THRESHOLD && currentZoomK >= ZOOM_THRESHOLD) || (oldK >= ZOOM_THRESHOLD && currentZoomK < ZOOM_THRESHOLD)) {
+    renderPoints();
+  }
 });
 
 svg.call(zoom);
 init();
+
+window.addEventListener('resize', () => {
+  projection = d3.geoNaturalEarth1().scale(window.innerWidth / 6).translate([window.innerWidth / 2, window.innerHeight / 1.6]);
+  g.selectAll('.country').attr('d', path);
+  g.selectAll('.country-border').attr('d', path);
+  g.selectAll('.graticule').attr('d', path);
+  renderPoints();
+});
 </script>
 </body>
 </html>
