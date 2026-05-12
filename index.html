@@ -14,9 +14,8 @@
       --land: #181818;
       --land-stroke: rgba(255,255,255,0.15);
       --red: #e63535;
-      --red-dim: rgba(230,53,53,0.25);
-      --ui-bg: rgba(20,20,20,0.92);
-      --ui-border: rgba(255,255,255,0.08);
+      --ui-bg: rgba(20,20,20,0.95);
+      --ui-border: rgba(255,255,255,0.1);
       --text: #eee;
       --text-muted: rgba(255,255,255,0.4);
     }
@@ -29,82 +28,73 @@
     .country-border { fill: none; stroke: rgba(255,255,255,0.2); stroke-width: 0.8px; vector-effect: non-scaling-stroke; }
     .graticule { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 0.4px; vector-effect: non-scaling-stroke; }
 
-    /* ── UI ELEMENTS ── */
-    #header {
-      position: fixed; top: 0; width: 100%; padding: 25px 30px;
-      display: flex; justify-content: space-between; align-items: center;
-      pointer-events: none; z-index: 100;
-    }
+    /* ── UI ── */
+    #header { position: fixed; top: 0; width: 100%; padding: 25px 30px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 100; }
     #logo { font-family: 'Space Mono'; letter-spacing: 0.3em; text-transform: uppercase; pointer-events: auto; font-size: 14px; }
     #logo em { color: var(--red); font-style: normal; font-weight: bold; }
-    #status-badge { font-family: 'Space Mono'; font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; pointer-events: auto; }
-    #status-badge::before { content: ''; width: 6px; height: 6px; background: var(--red); border-radius: 50%; box-shadow: 0 0 8px var(--red); animation: blink 2s infinite; }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    #status-badge { font-family: 'Space Mono'; font-size: 10px; color: var(--text-muted); pointer-events: auto; }
 
-    /* ── SEARCH ── */
     #search-box { position: fixed; top: 90px; left: 30px; z-index: 110; display: flex; gap: 8px; }
     #city-search {
       background: var(--ui-bg); border: 1px solid var(--ui-border); padding: 12px 18px;
       color: white; border-radius: 10px; font-family: 'Space Mono'; width: 260px; outline: none;
       backdrop-filter: blur(10px);
     }
-    #city-search:focus { border-color: var(--red); }
-    #search-btn {
-      background: var(--red); border: none; color: white; padding: 0 20px;
-      border-radius: 10px; font-family: 'Space Mono'; cursor: pointer; font-weight: bold;
-    }
+    #search-btn { background: var(--red); border: none; color: white; padding: 0 20px; border-radius: 10px; font-family: 'Space Mono'; cursor: pointer; font-weight: bold; }
 
-    /* ── TOOLTIP (Original Style) ── */
+    /* ── TOOLTIP (Original Look) ── */
     #tooltip {
       position: fixed; background: var(--ui-bg); border: 1px solid var(--ui-border);
-      border-radius: 12px; padding: 15px; pointer-events: none; opacity: 0;
-      z-index: 500; backdrop-filter: blur(12px); min-width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border-radius: 12px; padding: 16px; pointer-events: none; opacity: 0;
+      z-index: 500; backdrop-filter: blur(15px); min-width: 200px; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
       transition: opacity 0.2s;
     }
     #tooltip.show { opacity: 1; }
-    .tt-header { font-family: 'Space Mono'; color: var(--text-muted); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid var(--ui-border); padding-bottom: 5px; }
-    .tt-user { font-family: 'Space Mono'; color: var(--red); font-size: 14px; font-weight: bold; display: block; margin-bottom: 3px; }
-    .tt-location { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-family: 'Space Mono'; }
+    .tt-header { font-family: 'Space Mono'; color: var(--text-muted); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid var(--ui-border); padding-bottom: 6px; }
+    .tt-user { font-family: 'Space Mono'; color: var(--red); font-size: 15px; font-weight: 700; display: block; margin-bottom: 4px; }
+    .tt-location { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-family: 'Space Mono'; letter-spacing: 1px; }
 
     /* ── MODAL ── */
-    #form-modal {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-      z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px);
-    }
-    .modal-content {
-      background: var(--ui-bg); padding: 35px; border-radius: 20px; border: 1px solid var(--ui-border);
-      width: 340px; display: flex; flex-direction: column; gap: 20px;
-    }
-    .form-input {
-      background: rgba(255,255,255,0.05); border: 1px solid var(--ui-border);
-      padding: 14px; color: white; border-radius: 10px; font-family: 'Space Mono'; outline: none;
-    }
+    #form-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+    .modal-content { background: var(--ui-bg); padding: 35px; border-radius: 20px; border: 1px solid var(--ui-border); width: 340px; display: flex; flex-direction: column; gap: 20px; }
+    .form-input { background: rgba(255,255,255,0.05); border: 1px solid var(--ui-border); padding: 14px; color: white; border-radius: 10px; font-family: 'Space Mono'; outline: none; }
     .btn-main { background: var(--red); border: none; padding: 15px; color: white; border-radius: 10px; font-family: 'Space Mono'; font-weight: bold; cursor: pointer; }
 
+    /* ── LOADER ── */
+    #loader { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.6s; }
+    #loader.hide { opacity: 0; pointer-events: none; }
+    .progress-bar { width: 200px; height: 1px; background: rgba(255,255,255,0.1); margin-top: 20px; position: relative; }
+    .progress-fill { position: absolute; height: 100%; background: var(--red); width: 0%; transition: width 0.3s; }
+
     /* ── POINTS ── */
-    .point-outer { fill: none; stroke: var(--red); stroke-width: 1; }
+    .point-outer { fill: none; stroke: var(--red); stroke-width: 1.5; }
     .point-inner { fill: var(--red); cursor: pointer; }
   </style>
 </head>
 <body>
 
+<div id="loader">
+  <div style="font-family:'Space Mono'; letter-spacing: 4px; font-size: 12px;">ESTABLISHING <span style="color:var(--red)">CONNECTION</span></div>
+  <div class="progress-bar"><div class="progress-fill" id="p-fill"></div></div>
+</div>
+
 <div id="header">
   <div id="logo"><strong>MDS</strong> <em>Location</em></div>
-  <div id="status-badge">SYNCING GLOBAL NETWORK...</div>
+  <div id="status-badge">SECURE ENCRYPTION ACTIVE</div>
 </div>
 
 <div id="search-box">
-  <input type="text" id="city-search" placeholder="SEARCH OPERATIVE CITY...">
-  <button id="search-btn">GO</button>
+  <input type="text" id="city-search" placeholder="INPUT OPERATIVE CITY...">
+  <button id="search-btn">SEARCH</button>
 </div>
 
 <div id="form-modal">
   <div class="modal-content">
-    <div style="font-family:'Space Mono'; font-size:12px; color:var(--text-muted); letter-spacing:1px">SIGNAL IDENTIFIED</div>
-    <input type="text" id="username" class="form-input" placeholder="OPERATOR ID" maxlength="20">
-    <div id="location-display" style="font-family:'Space Mono'; font-size:11px; color:var(--red)"></div>
-    <button id="submit-btn" class="btn-main">TRANSMIT SIGNAL</button>
-    <button id="cancel-btn" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:10px; text-transform:uppercase">Abort</button>
+    <div style="font-family:'Space Mono'; font-size:11px; color:var(--text-muted); letter-spacing:1px">NEW SIGNAL DETECTED</div>
+    <input type="text" id="username" class="form-input" placeholder="OPERATOR NAME" maxlength="15">
+    <div id="location-display" style="font-family:'Space Mono'; font-size:10px; color:var(--red)"></div>
+    <button id="submit-btn" class="btn-main">TRANSMIT</button>
+    <button id="cancel-btn" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:10px; text-transform:uppercase; margin-top: -10px;">Cancel</button>
   </div>
 </div>
 
@@ -113,7 +103,7 @@
 <svg id="map">
   <defs>
     <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feGaussianBlur stdDeviation="3" result="blur" />
       <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
     </filter>
   </defs>
@@ -133,7 +123,7 @@ const ZOOM_THRESHOLD = 3.5;
 const svg = d3.select('#map');
 const g = d3.select('#main-g');
 const tooltip = d3.select('#tooltip');
-let projection = d3.geoNaturalEarth1().scale(window.innerWidth / 6).translate([window.innerWidth / 2, window.innerHeight / 1.6]);
+let projection = d3.geoNaturalEarth1().scale(window.innerWidth / 6.2).translate([window.innerWidth / 2, window.innerHeight / 1.6]);
 const path = d3.geoPath().projection(projection);
 
 let allTraders = [];
@@ -141,18 +131,25 @@ let currentZoomK = 1;
 let tempCoords = [0, 0];
 
 async function init() {
+  setLoad(30);
   const world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json');
+  g.append('path').datum(d3.geoGraticule()()).attr('class', 'graticule').attr('d', path);
   g.selectAll('.country').data(topojson.feature(world, world.objects.countries).features).enter().append('path').attr('class', 'country').attr('d', path);
   g.append('path').datum(topojson.mesh(world, world.objects.countries, (a, b) => a !== b)).attr('class', 'country-border').attr('d', path);
 
+  setLoad(70);
   await loadData();
+  setLoad(100);
+  setTimeout(() => document.getElementById('loader').classList.add('hide'), 500);
 }
+
+function setLoad(p) { document.getElementById('p-fill').style.width = p + '%'; }
 
 async function loadData() {
   const { data, error } = await supabaseClient.from('traders').select('*').eq('approved', true);
   if (!error) {
     allTraders = data;
-    document.getElementById('status-badge').innerText = `${data.length} TRADERS ONLINE`;
+    document.getElementById('status-badge').innerText = `${data.length} NODES DISCOVERED`;
     renderPoints();
   }
 }
@@ -162,12 +159,14 @@ function renderPoints() {
   let displayData = [];
 
   if (currentZoomK < ZOOM_THRESHOLD) {
+    // Группировка строго по странам
     const groups = d3.group(allTraders, d => d.country_code || 'GLOBAL');
     groups.forEach((members, country) => {
+      // Точка кластера всегда ставится в координаты первого трейдера этой страны
       displayData.push({ 
         isCluster: true, 
-        lng: d3.mean(members, m => m.lng), 
-        lat: d3.mean(members, m => m.lat), 
+        lng: members[0].lng, 
+        lat: members[0].lat, 
         members: members,
         country: country 
       });
@@ -184,21 +183,20 @@ function renderPoints() {
 
     // Rings
     const ring = el.append('circle').attr('class', 'point-outer').attr('cx', pos[0]).attr('cy', pos[1]).attr('r', 5);
-    function pulse() {
-      ring.attr('r', 5).style('opacity', 0.8).transition().duration(2000).attr('r', 20).style('opacity', 0).on('end', pulse);
-    }
-    pulse();
+    (function pulse() {
+      ring.attr('r', 5).style('opacity', 0.8).transition().duration(2500).ease(d3.easeCubicOut).attr('r', 25).style('opacity', 0).on('end', pulse);
+    })();
 
-    // Point
+    // Main Point
     el.append('circle').attr('class', 'point-inner').attr('cx', pos[0]).attr('cy', pos[1])
-      .attr('r', 5 / Math.sqrt(currentZoomK)).attr('filter', 'url(#glow)')
+      .attr('r', 6 / Math.sqrt(currentZoomK)).attr('filter', 'url(#glow)')
       .on('mouseover', (e) => {
         tooltip.classed('show', true);
         if (d.isCluster) {
-          const list = d.members.map(m => `<span class="tt-user">${m.name}</span>`).join('');
-          tooltip.html(`<div class="tt-header">TRADERS IN ${d.country}</div>${list}`);
+          const names = d.members.map(m => `<span class="tt-user">${m.name}</span>`).join('');
+          tooltip.html(`<div class="tt-header">TRADERS IN ${d.country}</div>${names}`);
         } else {
-          tooltip.html(`<div class="tt-header">OPERATIVE</div><span class="tt-user">${d.name}</span><div class="tt-location">${d.city || 'Unknown Location'}</div>`);
+          tooltip.html(`<div class="tt-header">OPERATIVE PROFILE</div><span class="tt-user">${d.name}</span><div class="tt-location">${d.city || 'Classified'}</div>`);
         }
       })
       .on('mousemove', (e) => tooltip.style('left', (e.clientX + 15)+'px').style('top', (e.clientY + 15)+'px'))
@@ -206,31 +204,31 @@ function renderPoints() {
   });
 }
 
-// Search Logic
 document.getElementById('search-btn').onclick = async () => {
   const query = document.getElementById('city-search').value;
+  if(!query) return;
   const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&addressdetails=1`);
   const data = await res.json();
 
   if (data.length > 0) {
     const city = data[0];
     tempCoords = [parseFloat(city.lon), parseFloat(city.lat)];
-    const countryCC = (city.address.country_code || '??').toUpperCase();
-    const cityName = city.display_name.split(',')[0].toUpperCase();
+    const cc = (city.address.country_code || '??').toUpperCase();
+    const cityName = (city.address.city || city.address.town || city.address.village || city.display_name.split(',')[0]).toUpperCase();
 
-    document.getElementById('location-display').innerText = `REGION: ${cityName} (${countryCC})`;
+    document.getElementById('location-display').innerText = `SECTOR: ${cityName} [${cc}]`;
     document.getElementById('form-modal').style.display = 'flex';
-    document.getElementById('form-modal').dataset.cc = countryCC;
+    document.getElementById('form-modal').dataset.cc = cc;
     document.getElementById('form-modal').dataset.city = cityName;
 
     const pos = projection(tempCoords);
-    svg.transition().duration(1500).call(zoom.transform, d3.zoomIdentity.translate(window.innerWidth/2, window.innerHeight/2).scale(8).translate(-pos[0], -pos[1]));
+    svg.transition().duration(1800).ease(d3.easeCubicInOut).call(zoom.transform, d3.zoomIdentity.translate(window.innerWidth/2, window.innerHeight/2).scale(10).translate(-pos[0], -pos[1]));
   }
 };
 
 document.getElementById('submit-btn').onclick = async () => {
   const name = document.getElementById('username').value;
-  if (!name) return;
+  if (!name) return alert('NAME REQUIRED');
   const modal = document.getElementById('form-modal');
 
   await supabaseClient.from('traders').insert([{ 
@@ -238,8 +236,9 @@ document.getElementById('submit-btn').onclick = async () => {
     approved: false, country_code: modal.dataset.cc, city: modal.dataset.city 
   }]);
 
-  alert('SIGNAL TRANSMITTED');
+  alert('SIGNAL TRANSMITTED TO BASE');
   modal.style.display = 'none';
+  document.getElementById('city-search').value = '';
 };
 
 document.getElementById('cancel-btn').onclick = () => document.getElementById('form-modal').style.display = 'none';
