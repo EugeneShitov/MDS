@@ -1,71 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MDS Location</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@500;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --bg: #0f0f0f; --land: #181818; --land-stroke: rgba(255,255,255,0.15);
-      --red: #e63535; --ui-bg: rgba(20,20,20,0.92); --ui-border: rgba(255,255,255,0.1);
-      --text: #eee; --text-muted: rgba(255,255,255,0.4);
-    }
-    body { background: var(--bg); overflow: hidden; font-family: 'Syne', sans-serif; color: var(--text); }
-    svg#map { width: 100vw; height: 100vh; display: block; background: var(--bg); cursor: crosshair; }
-    .country { fill: var(--land); stroke: var(--land-stroke); stroke-width: 0.5px; vector-effect: non-scaling-stroke; }
-    .country-border { fill: none; stroke: rgba(255,255,255,0.2); stroke-width: 0.8px; vector-effect: non-scaling-stroke; }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MDS Location</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@500;700&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0f0f0f;
+            --land: #181818;
+            --land-stroke: rgba(255,255,255,0.15);
+            --red: #e63535;
+            --ui-bg: rgba(20,20,20,0.92);
+            --ui-border: rgba(255,255,255,0.1);
+            --text: #eee;
+            --text-muted: rgba(255,255,255,0.4);
+        }
+        body { background: var(--bg); overflow: hidden; font-family: 'Syne', sans-serif; color: var(--text); }
+        svg#map { width: 100vw; height: 100vh; display: block; background: var(--bg); cursor: crosshair; }
+        .country { fill: var(--land); stroke: var(--land-stroke); stroke-width: 0.5px; vector-effect: non-scaling-stroke; }
+        .country-border { fill: none; stroke: rgba(255,255,255,0.2); stroke-width: 0.8px; vector-effect: non-scaling-stroke; }
 
-    /* UI Элементы */
-    #header { position: fixed; top: 0; width: 100%; padding: 22px 30px; display: flex; justify-content: space-between; pointer-events: none; z-index: 20; }
-    #logo { font-family: 'Space Mono'; letter-spacing: 0.3em; text-transform: uppercase; }
-    #logo em { color: var(--red); font-style: normal; }
+        /* UI Элементы */
+        #header { position: fixed; top: 0; width: 100%; padding: 22px 30px; display: flex; justify-content: space-between; pointer-events: none; z-index: 20; }
+        #logo { font-family: 'Space Mono'; letter-spacing: 0.3em; text-transform: uppercase; }
+        #logo em { color: var(--red); font-style: normal; }
 
-    /* Инструкция */
-    #hint { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ui-bg); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--ui-border); font-size: 11px; font-family: 'Space Mono'; color: var(--red); pointer-events: none; z-index: 10; }
+        /* Инструкция */
+        #hint { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ui-bg); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--ui-border); font-size: 11px; font-family: 'Space Mono'; color: var(--red); pointer-events: none; z-index: 10; }
 
-    /* Форма */
-    #form-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-    .modal-content { background: var(--ui-bg); padding: 30px; border-radius: 15px; border: 1px solid var(--ui-border); width: 320px; display: flex; flex-direction: column; gap: 15px; }
-    input { background: rgba(255,255,255,0.05); border: 1px solid var(--ui-border); padding: 12px; color: white; border-radius: 8px; font-family: 'Space Mono'; outline: none; }
-    input:focus { border-color: var(--red); }
-    button#submit-btn { background: var(--red); border: none; padding: 12px; color: white; border-radius: 8px; font-family: 'Space Mono'; font-weight: bold; cursor: pointer; }
-    button#cancel-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 11px; }
+        /* Форма */
+        #form-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--ui-bg); padding: 30px; border-radius: 15px; border: 1px solid var(--ui-border); width: 320px; display: flex; flex-direction: column; gap: 15px; }
+        input { background: rgba(255,255,255,0.05); border: 1px solid var(--ui-border); padding: 12px; color: white; border-radius: 8px; font-family: 'Space Mono'; outline: none; }
+        input:focus { border-color: var(--red); }
+        button#submit-btn { background: var(--red); border: none; padding: 12px; color: white; border-radius: 8px; font-family: 'Space Mono'; font-weight: bold; cursor: pointer; }
+        button#cancel-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 11px; }
 
-    /* Тултип */
-    #tooltip { position: fixed; background: var(--ui-bg); border: 1px solid var(--ui-border); border-radius: 10px; padding: 10px 15px; pointer-events: none; opacity: 0; z-index: 100; backdrop-filter: blur(10px); }
-    #tooltip.show { opacity: 1; }
-  </style>
+        /* Тултип */
+        #tooltip { position: fixed; background: var(--ui-bg); border: 1px solid var(--ui-border); border-radius: 10px; padding: 10px 15px; pointer-events: none; opacity: 0; z-index: 100; backdrop-filter: blur(10px); }
+        #tooltip.show { opacity: 1; }
+    </style>
 </head>
 <body>
 
 <div id="hint">Кликни на карту, чтобы добавить себя</div>
 
 <div id="form-modal">
-  <div class="modal-content">
-    <div style="font-family:'Space Mono'; font-size:14px; margin-bottom:10px">NEW TRADER SIGNAL</div>
-    <input type="text" id="username" placeholder="ENTER YOUR NAME" maxlength="20">
-    <div id="coords-display" style="font-size:9px; color:gray; font-family:'Space Mono'">COORDS: 0.00, 0.00</div>
-    <button id="submit-btn">SEND REQUEST</button>
-    <button id="cancel-btn">CANCEL</button>
-  </div>
+    <div class="modal-content">
+        <div style="font-family:'Space Mono'; font-size:14px; margin-bottom:10px">NEW TRADER SIGNAL</div>
+        <input type="text" id="username" placeholder="ENTER YOUR NAME" maxlength="20">
+        <div id="coords-display" style="font-size:9px; color:gray; font-family:'Space Mono'">COORDS: 0.00, 0.00</div>
+        <button id="submit-btn">SEND REQUEST</button>
+        <button id="cancel-btn">CANCEL</button>
+    </div>
 </div>
 
 <div id="header">
-  <div id="logo"><strong>MDS</strong> <em>Location</em></div>
-  <div id="trader-count" style="font-family:'Space Mono'; font-size:10px">LOADING...</div>
+    <div id="logo"><strong>MDS</strong> <em>Location</em></div>
+    <div id="trader-count" style="font-family:'Space Mono'; font-size:10px">LOADING...</div>
 </div>
 
 <div id="tooltip"></div>
 
 <svg id="map">
-  <defs>
-    <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  </defs>
-  <g id="main-g"></g>
+    <defs>
+        <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <g id="main-g"></g>
 </svg>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
@@ -74,10 +79,11 @@
 
 <script>
 // --- КОНФИГУРАЦИЯ SUPABASE ---
-// Вставь это в свой index.html на GitHub:
-const SUPABASE_URL = 'https://hliiypszpyeivrcgkwsj.supabase.co'; //
+const SUPABASE_URL = 'https://hliiypszpyeivrcgkwsj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsaWl5cHN6cHllaXZyY2drd3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTY5ODksImV4cCI6MjA5NDE5Mjk4OX0.F70Fwq8UnDC3s6dA3MJw4nrYBIqRbuAW4fEns9WOznU';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Инициализируем клиент ОДИН раз
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- ИНИЦИАЛИЗАЦИЯ КАРТЫ ---
 const svg = d3.select('#map');
@@ -89,63 +95,67 @@ const path = d3.geoPath().projection(projection);
 let tempCoords = [0, 0];
 
 async function init() {
-  const world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
-  const countries = topojson.feature(world, world.objects.countries);
-  
-  g.append('path').datum(d3.geoGraticule()()).attr('fill', 'none').attr('stroke', 'rgba(255,255,255,0.03)').attr('d', path);
-  g.selectAll('.country').data(countries.features).enter().append('path').attr('class', 'country').attr('d', path);
-  g.append('path').datum(topojson.mesh(world, world.objects.countries, (a, b) => a !== b)).attr('class', 'country-border').attr('d', path);
+    const world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+    const countries = topojson.feature(world, world.objects.countries);
 
-  loadApprovedTraders();
+    g.append('path').datum(d3.geoGraticule()()).attr('fill', 'none').attr('stroke', 'rgba(255,255,255,0.03)').attr('d', path);
+    g.selectAll('.country').data(countries.features).enter().append('path').attr('class', 'country').attr('d', path);
+    g.append('path').datum(topojson.mesh(world, world.objects.countries, (a, b) => a !== b)).attr('class', 'country-border').attr('d', path);
+
+    loadApprovedTraders();
 }
 
 // --- ЗАГРУЗКА ОДОБРЕННЫХ ---
 async function loadApprovedTraders() {
-  const { data, error } = await supabase.from('traders').select('*').eq('approved', true);
-  if (error) return console.error(error);
+    const { data, error } = await supabaseClient.from('traders').select('*').eq('approved', true);
+    if (error) return console.error(error);
 
-  document.getElementById('trader-count').innerText = `${data.length} TRADERS TOTAL`;
-  
-  const points = g.selectAll('.trader-point').data(data, d => d.id);
-  
-  const enter = points.enter().append('g').attr('class', 'trader-point');
-  
-  enter.append('circle').attr('r', 5).attr('fill', '#e63535').attr('filter', 'url(#glow)')
-       .attr('transform', d => `translate(${projection([d.lng, d.lat])})`)
-       .style('cursor', 'pointer')
-       .on('mouseover', (e, d) => {
-         tooltip.classed('show', true).html(`<div style="font-family:'Space Mono'; font-size:12px; color:#e63535">${d.name}</div>`);
-       })
-       .on('mousemove', (e) => tooltip.style('left', (e.clientX + 15)+'px').style('top', (e.clientY + 15)+'px'))
-       .on('mouseout', () => tooltip.classed('show', false));
+    document.getElementById('trader-count').innerText = `${data.length} TRADERS TOTAL`;
+
+    const points = g.selectAll('.trader-point').data(data, d => d.id);
+    const enter = points.enter().append('g').attr('class', 'trader-point');
+
+    enter.append('circle')
+        .attr('r', 5)
+        .attr('fill', '#e63535')
+        .attr('filter', 'url(#glow)')
+        .attr('transform', d => `translate(${projection([d.lng, d.lat])})`)
+        .style('cursor', 'pointer')
+        .on('mouseover', (e, d) => {
+            tooltip.classed('show', true).html(`<div style="font-family:'Space Mono'; font-size:12px; color:#e63535">${d.name}</div>`);
+        })
+        .on('mousemove', (e) => tooltip.style('left', (e.clientX + 15)+'px').style('top', (e.clientY + 15)+'px'))
+        .on('mouseout', () => tooltip.classed('show', false));
 }
 
 // --- ЛОГИКА ДОБАВЛЕНИЯ ---
 svg.on('click', function(e) {
-  if (e.target.classList.contains('country') || e.target.id === 'map') {
-    const coords = projection.invert(d3.pointer(e));
-    tempCoords = coords;
-    document.getElementById('coords-display').innerText = `COORDS: ${coords[1].toFixed(2)}, ${coords[0].toFixed(2)}`;
-    document.getElementById('form-modal').style.display = 'flex';
-  }
+    if (e.target.classList.contains('country') || e.target.id === 'map') {
+        const coords = projection.invert(d3.pointer(e));
+        tempCoords = coords;
+        document.getElementById('coords-display').innerText = `COORDS: ${coords[1].toFixed(2)}, ${coords[0].toFixed(2)}`;
+        document.getElementById('form-modal').style.display = 'flex';
+    }
 });
 
 document.getElementById('cancel-btn').onclick = () => document.getElementById('form-modal').style.display = 'none';
 
 document.getElementById('submit-btn').onclick = async () => {
-  const name = document.getElementById('username').value;
-  if (!name) return alert('Enter name');
+    const name = document.getElementById('username').value;
+    if (!name) return alert('Enter name');
 
-  const { error } = await supabase.from('traders').insert([
-    { name: name, lng: tempCoords[0], lat: tempCoords[1], approved: false }
-  ]);
+    const { error } = await supabaseClient.from('traders').insert([
+        { name: name, lng: tempCoords[0], lat: tempCoords[1], approved: false }
+    ]);
 
-  if (error) alert('Error sending data');
-  else {
-    alert('Request sent! Wait for approval.');
-    document.getElementById('form-modal').style.display = 'none';
-    document.getElementById('username').value = '';
-  }
+    if (error) {
+        console.error(error);
+        alert('Error sending data');
+    } else {
+        alert('Request sent! Wait for approval.');
+        document.getElementById('form-modal').style.display = 'none';
+        document.getElementById('username').value = '';
+    }
 };
 
 svg.call(d3.zoom().scaleExtent([1, 20]).on('zoom', (e) => g.attr('transform', e.transform)));
