@@ -20,7 +20,7 @@
             --text-muted: rgba(255,255,255,0.4);
         }
         body { background: var(--bg); overflow: hidden; font-family: 'Syne', sans-serif; color: var(--text); }
-        svg#map { width: 100vw; height: 100vh; display: block; background: var(--bg); cursor: crosshair; }
+        svg#map { width: 100vw; height: 100vh; display: block; background: var(--bg); }
         .country { fill: var(--land); stroke: var(--land-stroke); stroke-width: 0.5px; vector-effect: non-scaling-stroke; }
         .country-border { fill: none; stroke: rgba(255,255,255,0.2); stroke-width: 0.8px; vector-effect: non-scaling-stroke; }
 
@@ -35,8 +35,6 @@
         #city-search:focus { border-color: var(--red); }
         #search-btn { background: var(--red); border: none; color: white; padding: 10px 20px; border-radius: 8px; font-family: 'Space Mono'; cursor: pointer; font-weight: bold; }
 
-        #hint { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ui-bg); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--ui-border); font-size: 11px; font-family: 'Space Mono'; color: var(--red); pointer-events: none; z-index: 10; }
-
         /* Форма */
         #form-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-content { background: var(--ui-bg); padding: 30px; border-radius: 15px; border: 1px solid var(--ui-border); width: 320px; display: flex; flex-direction: column; gap: 15px; }
@@ -45,6 +43,7 @@
         button#submit-btn { background: var(--red); border: none; padding: 12px; color: white; border-radius: 8px; font-family: 'Space Mono'; font-weight: bold; cursor: pointer; }
         button#cancel-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 11px; }
 
+        /* Тултип */
         #tooltip { position: fixed; background: var(--ui-bg); border: 1px solid var(--ui-border); border-radius: 10px; padding: 10px 15px; pointer-events: none; opacity: 0; z-index: 100; backdrop-filter: blur(10px); }
         #tooltip.show { opacity: 1; }
     </style>
@@ -57,11 +56,9 @@
 </div>
 
 <div id="search-container">
-    <input type="text" id="city-search" placeholder="TYPE CITY NAME...">
-    <button id="search-btn">ADD YOURSELF</button>
+    <input type="text" id="city-search" placeholder="FIND YOUR CITY...">
+    <button id="search-btn">GO</button>
 </div>
-
-<div id="hint">Найди свой город или кликни на карту</div>
 
 <div id="form-modal">
     <div class="modal-content">
@@ -99,9 +96,7 @@ let projection = d3.geoNaturalEarth1().scale(window.innerWidth / 6.2).translate(
 const path = d3.geoPath().projection(projection);
 
 let tempCoords = [0, 0];
-let currentZoomTransform = d3.zoomIdentity;
 
-// Инициализация карты
 async function init() {
     const world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
     const countries = topojson.feature(world, world.objects.countries);
@@ -113,7 +108,6 @@ async function init() {
     loadApprovedTraders();
 }
 
-// Загрузка точек
 async function loadApprovedTraders() {
     const { data, error } = await supabaseClient.from('traders').select('*').eq('approved', true);
     if (error) return;
@@ -137,7 +131,7 @@ async function loadApprovedTraders() {
         .on('mouseout', () => tooltip.classed('show', false));
 }
 
-// Поиск города
+// ПОИСК ГОРОДА (ЕДИНСТВЕННЫЙ СПОСОБ ДОБАВЛЕНИЯ)
 document.getElementById('search-btn').onclick = async () => {
     const query = document.getElementById('city-search').value;
     if (!query) return;
@@ -149,11 +143,9 @@ document.getElementById('search-btn').onclick = async () => {
         const city = data[0];
         tempCoords = [parseFloat(city.lon), parseFloat(city.lat)];
         
-        // Показываем форму
         document.getElementById('location-display').innerText = `CITY: ${city.display_name.split(',')[0].toUpperCase()}`;
         document.getElementById('form-modal').style.display = 'flex';
         
-        // Перемещаем камеру к городу
         const pos = projection(tempCoords);
         svg.transition().duration(1000).call(
             zoom.transform, 
@@ -163,19 +155,6 @@ document.getElementById('search-btn').onclick = async () => {
         alert('City not found');
     }
 };
-
-// Обработка клика (улучшенная точность)
-svg.on('click', function(e) {
-    if (e.target.classList.contains('country') || e.target.id === 'map') {
-        const [mx, my] = d3.pointer(e);
-        // Учитываем текущий трансформ зума
-        const inv = currentZoomTransform.invert([mx, my]);
-        tempCoords = projection.invert(inv);
-        
-        document.getElementById('location-display').innerText = `COORDS: ${tempCoords[1].toFixed(2)}, ${tempCoords[0].toFixed(2)}`;
-        document.getElementById('form-modal').style.display = 'flex';
-    }
-});
 
 document.getElementById('cancel-btn').onclick = () => document.getElementById('form-modal').style.display = 'none';
 
@@ -193,13 +172,13 @@ document.getElementById('submit-btn').onclick = async () => {
         alert('Sent! Wait for approval.');
         document.getElementById('form-modal').style.display = 'none';
         document.getElementById('username').value = '';
+        document.getElementById('city-search').value = '';
     }
 };
 
 const zoom = d3.zoom().scaleExtent([1, 40]).on('zoom', (e) => {
-    currentZoomTransform = e.transform;
     g.attr('transform', e.transform);
-    g.selectAll('.trader-point').attr('r', 5 / Math.sqrt(e.transform.k)); // Точки не становятся огромными при зуме
+    g.selectAll('.trader-point').attr('r', 5 / Math.sqrt(e.transform.k));
 });
 
 svg.call(zoom);
