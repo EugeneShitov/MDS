@@ -20,7 +20,6 @@
     .country-border { fill: none; stroke: rgba(255,255,255,0.2); stroke-width: 0.8px; vector-effect: non-scaling-stroke; }
     .graticule { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 0.4px; vector-effect: non-scaling-stroke; }
 
-    /* UI Elements */
     #header { position: fixed; top: 0; width: 100%; padding: 25px 30px; display: flex; justify-content: space-between; z-index: 100; pointer-events: none; }
     #logo { font-family: 'Space Mono'; letter-spacing: 0.3em; text-transform: uppercase; pointer-events: auto; font-size: 14px; }
     #logo em { color: var(--red); font-style: normal; font-weight: bold; }
@@ -34,7 +33,6 @@
     }
     #search-btn { background: var(--red); border: none; color: white; padding: 0 20px; border-radius: 10px; font-family: 'Space Mono'; cursor: pointer; font-weight: bold; }
 
-    /* Tooltip */
     #tooltip {
       position: fixed; background: var(--ui-bg); border: 1px solid var(--ui-border);
       border-radius: 12px; padding: 16px; pointer-events: none; opacity: 0;
@@ -45,7 +43,6 @@
     .tt-header { font-family: 'Space Mono'; color: var(--text-muted); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid var(--ui-border); padding-bottom: 6px; }
     .tt-user { font-family: 'Space Mono'; color: var(--red); font-size: 14px; font-weight: 700; display: block; margin-bottom: 4px; }
 
-    /* Form Modal */
     #form-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
     .modal-content { background: var(--ui-bg); padding: 35px; border-radius: 20px; border: 1px solid var(--ui-border); width: 340px; display: flex; flex-direction: column; gap: 20px; }
     .form-input { background: rgba(255,255,255,0.05); border: 1px solid var(--ui-border); padding: 14px; color: white; border-radius: 10px; font-family: 'Space Mono'; outline: none; }
@@ -99,7 +96,7 @@ const path = d3.geoPath().projection(projection);
 
 let allTraders = [];
 let currentZoomK = 1;
-let countriesFeature; // Храним данные стран для поиска центров
+let countriesFeature;
 
 async function init() {
   const world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json');
@@ -126,20 +123,18 @@ function renderPoints() {
   let displayData = [];
 
   if (currentZoomK < ZOOM_THRESHOLD) {
-    // ГРУППИРОВКА: По одной точке на каждую уникальную страну
     const groups = d3.group(allTraders, d => d.country_code);
     
     groups.forEach((members, countryCode) => {
-      // Ищем геометрический центр страны по коду (ISO или по имени)
       const countryShape = countriesFeature.features.find(f => 
         f.id === countryCode || (f.properties.name && members[0].country_name && f.properties.name.toLowerCase() === members[0].country_name.toLowerCase())
       );
 
       let center;
       if (countryShape) {
-        center = d3.geoCentroid(countryShape); // Динамический центр любой страны
+        center = d3.geoCentroid(countryShape);
       } else {
-        center = [members[0].lng, members[0].lat]; // Запасной вариант
+        center = [members[0].lng, members[0].lat];
       }
 
       displayData.push({ 
@@ -151,7 +146,6 @@ function renderPoints() {
       });
     });
   } else {
-    // ДЕТАЛИЗАЦИЯ: Все в своих городах
     displayData = allTraders.map(d => ({ ...d, isCluster: false }));
   }
 
@@ -174,7 +168,7 @@ function renderPoints() {
           const names = d.members.map(m => `<span class="tt-user">${m.name}</span>`).join('');
           tooltip.html(`<div class="tt-header">TRADERS IN ${d.countryName}</div>${names}`);
         } else {
-          tooltip.html(`<div class="tt-header">OPERATIVE PROFILE</div><span class="tt-user">${d.name}</span><div style="font-size:10px; color:rgba(255,255,255,0.4); font-family:'Space Mono';">${d.city}</div>`);
+          tooltip.html(`<div class="tt-header">OPERATIVE PROFILE</div><span class="tt-user">${d.name}</span><div style="font-size:10px; color:rgba(255,255,255,0.4); text-transform:uppercase; font-family:'Space Mono';">${d.city}</div>`);
         }
       })
       .on('mousemove', (e) => tooltip.style('left', (e.clientX + 15)+'px').style('top', (e.clientY + 15)+'px'))
